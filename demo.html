@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Widget demo</title>
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:48px auto;padding:0 20px;line-height:1.6}</style>
+</head>
+<body>
+<h1>Your business website</h1>
+<p>Open the chat button in the corner to try the assistant.</p>
+
+<!-- Paste this one tag before </body> on any page -->
+<script src="http://localhost:8000/widget/widget.js"
+        data-api="http://localhost:8000"
+        data-business="demo-salon"
+        data-name="Your Business"
+        data-color="#1f5eff"
+        data-greeting="Hi! Ask me about our services or book an appointment."
+        data-suggestions="Book an appointment|What are your hours?|Pricing"
+        data-phone="+1 555 010 0000"></script>
+</body>
+</html>

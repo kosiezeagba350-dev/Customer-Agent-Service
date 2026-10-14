@@ -1,0 +1,15 @@
+{
+  "business_name": "Your Business Name",
+  "description": "Describe what you do in two sentences.",
+  "hours": {"start": 9, "end": 17, "days": "Monday to Friday"},
+  "services": [
+    {"name": "Consultation", "price": "$120", "duration_minutes": 60},
+    {"name": "Follow-up session", "price": "$60", "duration_minutes": 30}
+  ],
+  "location": "Your address, city, state",
+  "contact": {"phone": "+1 ...", "email": "hello@example.com"},
+  "faqs": [
+    {"q": "How do I pay?", "a": "Bank transfer or card, details are sent after booking."},
+    {"q": "Can I reschedule?", "a": "Yes, up to 24 hours before your appointment."}
+  ]
+}

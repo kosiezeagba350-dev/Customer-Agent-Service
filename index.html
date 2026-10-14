@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistant dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f6f8;--surface:#fff;--ink:#10212e;--muted:#5c6b78;--line:#dde3e8;--navy:#12263a;--ok:#1f8a5b;--warn:#c47a00;--bad:#b3261e;--focus:#2563eb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+h1,h2{line-height:1.2;margin:0 0 12px}
+h1{font-size:26px;font-weight:600}
+h2{font-size:19px;font-weight:600;margin-top:36px}
+p{margin:0 0 12px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top .in{max-width:900px;margin:0 auto;padding:12px 20px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
+.top strong{font-size:17px;margin-right:auto}
+.tabs{display:flex;gap:4px;overflow-x:auto;width:100%;order:3}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;font:inherit;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button[aria-current=page]{color:var(--ink);border-color:var(--navy);font-weight:600}
+main{max-width:900px;margin:0 auto;padding:28px 20px 80px}
+main.center{max-width:380px;padding-top:12vh}
+.btn{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{background:#1c3a57}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;padding:6px}
+label.f{display:block;margin-bottom:14px}
+label.f span{display:block;font-weight:500;margin-bottom:4px}
+input,textarea,select{width:100%;font:inherit;padding:9px 11px;border:1px solid #c5cdd5;border-radius:8px;background:#fff;color:var(--ink)}
+textarea{min-height:84px;resize:vertical}
+.hint{color:var(--muted);font-size:14px;margin:-8px 0 14px}
+.err{color:var(--bad);min-height:1.5em}
+.login label{display:block;font-weight:500;margin:14px 0 4px}
+.login .btn{width:100%;margin-top:8px}
+.login .chk{display:flex;gap:10px;align-items:flex-start;font-weight:400;margin-top:16px;font-size:15px}
+.login .chk input{width:auto;margin-top:4px}
+.meter{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:26px 24px}
+.meter .big{font-size:20px;margin-bottom:16px}
+.meter .num{font-size:52px;font-weight:600;letter-spacing:-.02em;margin-right:6px}
+.track{height:16px;background:#e8edf1;border-radius:99px;overflow:hidden}
+.fill{height:100%;border-radius:99px;transition:width .4s}
+.fill.ok{background:var(--ok)}.fill.warn{background:var(--warn)}.fill.bad{background:var(--bad)}
+.meter .sub{margin:12px 0 0;color:var(--muted)}
+.banner{border-radius:10px;padding:12px 16px;margin-bottom:18px;border:1px solid}
+.banner.bad{background:#fdecea;border-color:#f3b8b3;color:#7a1810}
+.banner.warn{background:#fff6e0;border-color:#efd08a;color:#6b4300}
+.banner.info{background:#e9f1fb;border-color:#b9d1ef;color:#17406e}
+.banner button{margin-left:8px}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);font-size:15px}
+th{font-weight:600;background:#eef2f5}
+tr:last-child td{border-bottom:0}
+.scroll{overflow-x:auto}
+.row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:start}
+.row.faq{grid-template-columns:1fr 1.6fr auto}
+@media(max-width:640px){.row,.row.faq{grid-template-columns:1fr}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.two{grid-template-columns:1fr}}
+pre{background:var(--navy);color:#e8eef4;padding:16px;border-radius:10px;overflow-x:auto;font-size:13.5px;line-height:1.55;margin:0 0 12px}
+.plans{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.plan{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.plan:last-child{border-bottom:0}
+.plan .n{font-weight:600;font-size:17px;flex:1 1 140px}
+.plan .d{color:var(--muted);flex:2 1 200px}
+.empty{color:var(--muted);padding:24px 0}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+#toast.show{opacity:1}#toast.bad{background:var(--bad)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+const state = { me: null, tab: 'overview', bookings: null, form: null, color: '#1f5eff', chips: 'Book an appointment|Hours|Pricing' };
+const fmt = n => Number(n).toLocaleString('en-US');
+
+function h(tag, props = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (v === true) e.setAttribute(k, '');
+    else if (v !== false && v != null) e.setAttribute(k, v);
+  }
+  for (const c of kids.flat(Infinity)) e.append(c && c.nodeType ? c : String(c ?? ''));
+  return e;
+}
+
+let toastTimer;
+function toast(msg, bad) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show' + (bad ? ' bad' : '');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+}
+
+async function api(path, opt = {}) {
+  const r = await fetch('/owner' + path, {
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    method: opt.method || 'GET',
+    body: opt.body ? JSON.stringify(opt.body) : undefined
+  });
+  if (r.status === 401 && path !== '/login') { state.me = null; render(); throw new Error('Please sign in again.'); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(typeof d.detail === 'string' ? d.detail : 'Check the fields and try again.');
+  return d;
+}
+
+function initForm() {
+  const k = state.me.knowledge;
+  state.form = {
+    description: k.description || '', location: k.location || '',
+    phone: (k.contact || {}).phone || '', email: (k.contact || {}).email || '',
+    start: (k.hours || {}).start ?? 9, end: (k.hours || {}).end ?? 17, days: (k.hours || {}).days || '',
+    services: (k.services || []).map(s => ({ ...s })), faqs: (k.faqs || []).map(f => ({ ...f })),
+    human: state.me.human_phone || '', origins: (state.me.allowed_origins || []).join('\n')
+  };
+}
+
+async function load() {
+  try { state.me = await api('/me'); initForm(); } catch (e) { state.me = null; }
+  render();
+}
+
+async function go(tab) {
+  state.tab = tab;
+  if (tab === 'bookings') {
+    try { state.bookings = (await api('/bookings')).bookings; } catch (e) { toast(e.message, true); }
+  }
+  render();
+}
+
+function render() {
+  const app = document.getElementById('app');
+  app.replaceChildren(state.me ? appView() : authView());
+}
+
+/* ---------- Sign in, sign up, password reset ---------- */
+let cfg = { signup_enabled: true, terms_url: '', privacy_url: '' };
+const lf = (label, input) => [h('label', { for: input.id }, label), input];
+const swap = (mode, text) => h('button', { type: 'button', class: 'link', onclick: () => { state.auth = mode; render(); } }, text);
+
+function authForm(title, intro, fields, submit, onSubmit, links) {
+  const err = h('p', { class: 'err', role: 'alert' });
+  return h('form', {
+    class: 'login',
+    onsubmit: async e => { e.preventDefault(); err.textContent = ''; try { await onSubmit(); } catch (x) { err.textContent = x.message; } }
+  },
+    h('h1', {}, title), intro ? h('p', { class: 'hint', style: 'margin:0 0 4px' }, intro) : null,
+    fields, err, h('button', { class: 'btn', type: 'submit' }, submit),
+    h('p', { style: 'margin-top:14px' }, links));
+}
+
+function loginForm() {
+  const email = h('input', { type: 'email', id: 'em', autocomplete: 'username', required: true });
+  const pw = h('input', { type: 'password', id: 'pw', autocomplete: 'current-password', required: true });
+  return authForm('Sign in', null, [lf('Email', email), lf('Password', pw)], 'Sign in',
+    async () => { await api('/login', { method: 'POST', body: { email: email.value, password: pw.value } }); await load(); },
+    [cfg.signup_enabled ? swap('signup', 'Create an account') : null, swap('forgot', 'Forgot password?')]);
+}
+
+function signupForm() {
+  const name = h('input', { type: 'text', id: 'bn', autocomplete: 'organization', required: true, maxlength: 80 });
+  const email = h('input', { type: 'email', id: 'se', autocomplete: 'email', required: true });
+  const pw = h('input', { type: 'password', id: 'sp', autocomplete: 'new-password', required: true, minlength: 10 });
+  const site = h('input', { type: 'text', id: 'sw', placeholder: 'yourbusiness.com', autocomplete: 'url' });
+  const tc = h('input', { type: 'checkbox', id: 'tc', required: true });
+  const doc = (url, text) => url ? h('a', { href: url, target: '_blank', rel: 'noopener' }, text) : text;
+  return authForm('Create your account', 'Free for 14 days. No card needed.',
+    [lf('Business name', name), lf('Email', email), lf('Password (at least 10 characters)', pw), lf('Website (optional)', site),
+      h('label', { class: 'chk', for: 'tc' }, tc, h('span', {}, 'I agree to the ', doc(cfg.terms_url, 'terms'), ' and ', doc(cfg.privacy_url, 'privacy policy'), '.'))],
+    'Create account',
+    async () => {
+      await api('/signup', { method: 'POST', body: { business_name: name.value, email: email.value, password: pw.value, website: site.value || null, accepted_terms: tc.checked } });
+      state.auth = 'login'; state.tab = 'overview'; await load();
+      toast('Account created. Check your email to confirm your address.');
+    },
+    swap('login', 'I already have an account'));
+}
+
+function forgotForm() {
+  const email = h('input', { type: 'email', id: 'fe', autocomplete: 'username', required: true });
+  return authForm('Reset your password', 'Enter your email and we will send you a link.', [lf('Email', email)], 'Send reset link',
+    async () => { await api('/forgot', { method: 'POST', body: { email: email.value } }); state.auth = 'forgot_sent'; render(); },
+    swap('login', 'Back to sign in'));
+}
+
+function resetForm() {
+  const token = new URLSearchParams(location.search).get('reset');
+  const pw = h('input', { type: 'password', id: 'rp', autocomplete: 'new-password', required: true, minlength: 10 });
+  return authForm('Choose a new password', null, [lf('New password (at least 10 characters)', pw)], 'Save password',
+    async () => {
+      await api('/reset', { method: 'POST', body: { token, new_password: pw.value } });
+      history.replaceState({}, '', location.pathname); state.auth = 'login'; render();
+      toast('Password updated. Sign in with your new password.');
+    },
+    swap('forgot', 'Send me a new link'));
+}
+
+function authView() {
+  if (new URLSearchParams(location.search).get('reset')) state.auth = 'reset';
+  const views = {
+    login: loginForm, signup: signupForm, forgot: forgotForm, reset: resetForm,
+    forgot_sent: () => h('div', { class: 'login' }, h('h1', {}, 'Check your email'),
+      h('p', {}, 'If an account exists for that address, we sent a link to reset the password. It works for one hour.'), swap('login', 'Back to sign in'))
+  };
+  return h('main', { class: 'center' }, (views[state.auth] || loginForm)());
+}
+
+/* ---------- Shell ---------- */
+const TABS = [['overview', 'Overview'], ['bookings', 'Bookings'], ['business', 'Business info'], ['install', 'Install'], ['plan', 'Plan and billing']];
+
+function appView() {
+  const views = { overview, bookings, business, install, plan };
+  return h('div', {},
+    h('header', { class: 'top' }, h('div', { class: 'in' },
+      h('strong', {}, state.me.name),
+      h('button', { class: 'link', onclick: async () => { await api('/logout', { method: 'POST' }); state.me = null; render(); } }, 'Sign out'),
+      h('nav', { class: 'tabs', 'aria-label': 'Sections' },
+        TABS.map(([k, label]) => h('button', { type: 'button', 'aria-current': state.tab === k ? 'page' : null, onclick: () => go(k) }, label)))
+    )),
+    h('main', {}, views[state.tab]()));
+}
+
+/* ---------- Overview ---------- */
+function overview() {
+  const m = state.me;
+  const pct = m.limit ? Math.min(100, Math.round(m.used / m.limit * 100)) : 100;
+  const tone = pct >= 100 ? 'bad' : pct >= 80 ? 'warn' : 'ok';
+  const toPlan = h('button', { class: 'link', onclick: () => go('plan') }, 'See plans');
+  const banners = [];
+  if (m.access === 'unverified') banners.push(h('div', { class: 'banner warn', role: 'alert' }, 'Confirm your email to turn on your assistant. We sent a link to ' + m.email + '. ',
+    h('button', { class: 'link', onclick: async () => { try { await api('/resend-verification', { method: 'POST' }); toast('Email sent'); } catch (e) { toast(e.message, true); } } }, 'Send it again')));
+  if (m.onboarding && m.access !== 'unverified') banners.push(h('div', { class: 'banner info' }, 'Next step: tell your assistant about your business so it knows what to say. ',
+    h('button', { class: 'link', onclick: () => go('business') }, 'Add business info')));
+  if (m.access === 'limit') banners.push(h('div', { class: 'banner bad', role: 'alert' }, 'You have used all your messages this month, so your assistant is paused until ' + m.resets + '. ', toPlan));
+  if (m.access === 'trial_expired') banners.push(h('div', { class: 'banner bad', role: 'alert' }, 'Your free trial has ended. Choose a plan to turn your assistant back on. ', toPlan));
+  if (m.access === 'canceled') banners.push(h('div', { class: 'banner bad', role: 'alert' }, 'Your subscription was canceled. Choose a plan to turn your assistant back on. ', toPlan));
+  if (m.status === 'past_due') banners.push(h('div', { class: 'banner warn' }, 'Your last payment failed. Update your payment method to avoid interruption. ', toPlan));
+  if (m.status === 'trial' && m.access === 'ok') banners.push(h('div', { class: 'banner info' }, `Free trial: ${m.trial_days_left} day${m.trial_days_left === 1 ? '' : 's'} left. `, toPlan));
+  return h('div', {},
+    h('h1', {}, 'This month'), banners,
+    h('section', { class: 'meter' },
+      h('p', { class: 'big' }, h('span', { class: 'num' }, fmt(m.used)), 'of ' + fmt(m.limit) + ' messages used'),
+      h('div', { class: 'track', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': m.limit, 'aria-valuenow': m.used, 'aria-label': 'Messages used this month' },
+        h('div', { class: 'fill ' + tone, style: 'width:' + pct + '%' })),
+      h('p', { class: 'sub' }, fmt(Math.max(0, m.limit - m.used)) + ' left. Resets ' + m.resets + '. Plan: ' + m.plan_label + '.')),
+    h('p', { class: 'hint', style: 'margin-top:14px' }, 'Each message a customer sends, in chat, WhatsApp or on a call, counts as one.'));
+}
+
+/* ---------- Bookings ---------- */
+const fmtHour = n => (n % 12 || 12) + ':00 ' + (n >= 12 ? 'PM' : 'AM');
+const fmtDate = d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+function bookings() {
+  const list = state.bookings;
+  if (!list) return h('p', { class: 'empty' }, 'Loading bookings...');
+  if (!list.length) return h('div', {}, h('h1', {}, 'Upcoming bookings'), h('p', { class: 'empty' }, 'No bookings yet. When customers book through chat or phone, they appear here.'));
+  return h('div', {}, h('h1', {}, 'Upcoming bookings'),
+    h('div', { class: 'scroll' }, h('table', {},
+      h('thead', {}, h('tr', {}, ['Date', 'Time', 'Service', 'Customer', 'Contact', ''].map(t => h('th', {}, t)))),
+      h('tbody', {}, list.map(b => h('tr', {},
+        h('td', {}, fmtDate(b.date)), h('td', {}, fmtHour(b.hour)), h('td', {}, b.service), h('td', {}, b.name), h('td', {}, b.contact),
+        h('td', {}, h('button', {
+          class: 'link', onclick: async () => {
+            if (!confirm('Cancel this booking? The time slot opens up again.')) return;
+            try { await api('/bookings/' + b.id, { method: 'DELETE' }); toast('Booking canceled'); await go('bookings'); } catch (e) { toast(e.message, true); }
+          }
+        }, 'Cancel'))))))));
+}
+
+/* ---------- Business info ---------- */
+function bound(key, props = {}, tag = 'input') {
+  const e = h(tag, props); e.value = state.form[key] ?? '';
+  e.addEventListener('input', () => { state.form[key] = e.value; });
+  return e;
+}
+function cell(obj, key, label, props = {}, tag = 'input') {
+  const e = h(tag, { 'aria-label': label, placeholder: label, ...props }); e.value = obj[key] ?? '';
+  e.addEventListener('input', () => { obj[key] = e.value; });
+  return e;
+}
+const field = (label, input) => h('label', { class: 'f' }, h('span', {}, label), input);
+
+async function saveBusiness(e) {
+  e.preventDefault();
+  const f = state.form, k0 = state.me.knowledge;
+  const knowledge = {
+    ...k0, description: f.description, location: f.location,
+    contact: { ...(k0.contact || {}), phone: f.phone, email: f.email },
+    hours: { ...(k0.hours || {}), start: +f.start, end: +f.end, days: f.days },
+    services: f.services.filter(s => (s.name || '').trim()).map(s => ({ ...s, duration_minutes: +s.duration_minutes || undefined })),
+    faqs: f.faqs.filter(x => (x.q || '').trim() && (x.a || '').trim())
+  };
+  try {
+    await api('/knowledge', { method: 'PUT', body: { knowledge, allowed_origins: f.origins.split('\n').map(x => x.trim()).filter(Boolean), human_phone: f.human || null } });
+    toast('Changes saved'); await load();
+  } catch (x) { toast(x.message, true); }
+}
+
+function business() {
+  const f = state.form;
+  return h('form', { onsubmit: saveBusiness },
+    h('h1', {}, 'Business info'),
+    h('p', { class: 'hint' }, 'Your assistant answers only from what you enter here, so keep it accurate.'),
+    field('About your business', bound('description', {}, 'textarea')),
+    h('div', { class: 'two' }, field('Address', bound('location')), field('Business phone', bound('phone', { type: 'tel' }))),
+    h('div', { class: 'two' }, field('Business email', bound('email', { type: 'email' })), field('Days open (for example, Monday to Friday)', bound('days'))),
+    h('div', { class: 'two' },
+      field('Opens (hour, 0 to 23)', bound('start', { type: 'number', min: 0, max: 23 })),
+      field('Closes (hour, 1 to 24)', bound('end', { type: 'number', min: 1, max: 24 }))),
+    h('h2', {}, 'Services'),
+    f.services.map((s, i) => h('div', { class: 'row' },
+      cell(s, 'name', 'Service name'), cell(s, 'price', 'Price'), cell(s, 'duration_minutes', 'Minutes', { type: 'number', min: 1 }),
+      h('button', { type: 'button', class: 'link', onclick: () => { f.services.splice(i, 1); render(); } }, 'Remove'))),
+    h('button', { type: 'button', class: 'btn ghost', onclick: () => { f.services.push({ name: '', price: '' }); render(); } }, 'Add a service'),
+    h('h2', {}, 'Common questions'),
+    f.faqs.map((x, i) => h('div', { class: 'row faq' },
+      cell(x, 'q', 'Question'), cell(x, 'a', 'Answer', {}, 'textarea'),
+      h('button', { type: 'button', class: 'link', onclick: () => { f.faqs.splice(i, 1); render(); } }, 'Remove'))),
+    h('button', { type: 'button', class: 'btn ghost', onclick: () => { f.faqs.push({ q: '', a: '' }); render(); } }, 'Add a question'),
+    h('h2', {}, 'Handoff and security'),
+    field('Phone number for live transfers', bound('human', { type: 'tel' })),
+    field('Websites allowed to show your chat widget (one per line)', bound('origins', { placeholder: 'https://yourbusiness.com' }, 'textarea')),
+    h('button', { class: 'btn', type: 'submit', style: 'margin-top:12px' }, 'Save changes'));
+}
+
+/* ---------- Install ---------- */
+function snippet() {
+  const m = state.me, o = location.origin;
+  return `<script src="${o}/widget/widget.js"\n        data-api="${o}"\n        data-business="${m.id}"\n        data-name="${m.name}"\n        data-color="${state.color}"\n        data-suggestions="${state.chips}"\n        data-phone="${(m.knowledge.contact || {}).phone || ''}"><\/script>`;
+}
+function install() {
+  const m = state.me;
+  const pre = h('pre', {}, snippet());
+  const color = h('input', { type: 'color', value: state.color, 'aria-label': 'Chat button color', style: 'width:64px;padding:2px;height:40px' });
+  const chips = h('input', { type: 'text', value: state.chips });
+  const refresh = () => { state.color = color.value; state.chips = chips.value; pre.textContent = snippet(); };
+  color.addEventListener('input', refresh); chips.addEventListener('input', refresh);
+  return h('div', {},
+    h('h1', {}, 'Add the chat to your website'),
+    h('p', {}, 'Paste this just before the closing body tag on any page. It works on WordPress, Wix, Squarespace and plain HTML.'),
+    h('div', { class: 'two' }, field('Button color', color), field('Suggested questions (separate with |)', chips)),
+    pre,
+    h('button', { class: 'btn', type: 'button', onclick: async () => { try { await navigator.clipboard.writeText(pre.textContent); toast('Copied'); } catch (e) { toast('Select the code and copy it', true); } } }, 'Copy code'),
+    h('h2', {}, 'Your assistant numbers'),
+    h('p', {}, 'Phone: ' + (m.twilio_number || 'not assigned yet')),
+    h('p', {}, 'WhatsApp: ' + (m.whatsapp_number || 'not assigned yet')),
+    h('p', { class: 'hint' }, 'Need a number added or changed? Contact support.'));
+}
+
+/* ---------- Plan and billing ---------- */
+async function openUrl(path, body) {
+  try { const d = await api(path, { method: 'POST', body }); location.href = d.url; } catch (e) { toast(e.message, true); }
+}
+function plan() {
+  const m = state.me;
+  const pwOld = h('input', { type: 'password', autocomplete: 'current-password', id: 'po' });
+  const pwNew = h('input', { type: 'password', autocomplete: 'new-password', id: 'pn', minlength: 10 });
+  return h('div', {},
+    h('h1', {}, 'Plan and billing'),
+    h('p', {}, 'Current plan: ' + m.plan_label + (m.status === 'canceled' ? ' (canceled)' : '') + '.'),
+    !m.stripe_enabled ? h('div', { class: 'banner info' }, 'Online billing is not set up yet. Contact support to change your plan.') : null,
+    h('div', { class: 'plans' }, m.plans.map(p => h('div', { class: 'plan' },
+      h('span', { class: 'n' }, p.label),
+      h('span', { class: 'd' }, '$' + p.price_usd + ' per month, ' + fmt(p.messages) + ' messages'),
+      m.plan === p.key && m.status === 'active'
+        ? h('button', { class: 'btn ghost', disabled: true }, 'Current plan')
+        : h('button', { class: 'btn', disabled: !m.stripe_enabled, onclick: () => openUrl('/billing/checkout', { plan: p.key }) }, m.status === 'active' ? 'Switch to ' + p.label : 'Choose ' + p.label)))),
+    m.has_billing_account && m.stripe_enabled
+      ? h('p', { style: 'margin-top:16px' }, h('button', { class: 'btn ghost', onclick: () => openUrl('/billing/portal') }, 'Manage payment method and invoices')) : null,
+    h('h2', {}, 'Password'),
+    h('form', {
+      style: 'max-width:360px', onsubmit: async e => {
+        e.preventDefault();
+        try { await api('/password', { method: 'POST', body: { old_password: pwOld.value, new_password: pwNew.value } }); toast('Password changed'); pwOld.value = ''; pwNew.value = ''; }
+        catch (x) { toast(x.message, true); }
+      }
+    }, field('Current password', pwOld), field('New password (at least 10 characters)', pwNew), h('button', { class: 'btn', type: 'submit' }, 'Change password')));
+}
+
+/* ---------- Start ---------- */
+(async () => {
+  try { cfg = await (await fetch('/owner/config')).json(); } catch (e) { /* keep defaults */ }
+  await load();
+  const q = new URLSearchParams(location.search);
+  if (q.get('verified') === '1') { toast('Email confirmed. Your assistant is on.'); }
+  if (q.get('verified') === '0') { toast('That confirmation link is invalid or expired. Sign in and ask for a new one.', true); }
+  if (q.get('billing') === 'success') { toast('Payment received. Your plan will update in a moment.'); setTimeout(load, 2500); }
+  if (q.has('verified') || q.has('billing')) history.replaceState({}, '', location.pathname);
+})();
+</script>
+</body>
+</html>
